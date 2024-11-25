@@ -1,0 +1,1 @@
+SELECT create_hypertable('measurements', 'mtime', if_not_exists => TRUE);

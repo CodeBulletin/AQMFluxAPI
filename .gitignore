@@ -1,0 +1,15 @@
+.env
+/build
+/vendor
+
+*.exe
+*.log
+*.dll
+*.so
+*.dylib
+*.out
+
+*.test
+
+go.work.sum
+go.work
