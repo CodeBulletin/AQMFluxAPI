@@ -35,7 +35,7 @@ jobs:
         run: |
           curl -sL $(cat latest_release.txt) -o build.zip
       - name: Unzip static files
-        run: unzip build.zip -d static
+        run: unzip -n build.zip -d static
       - name: Build
         run: go build -o build/app -ldflags="-X 'main.Debug=false' -X 'main.Version={{ github.sha }}'" ./cmd/main.go
       - name: Archive build
