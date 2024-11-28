@@ -37,7 +37,7 @@ jobs:
       - name: Unzip static files
         run: unzip -n build.zip -d static
       - name: Build
-        run: go build -o build/app -ldflags="-X 'main.Debug=false' -X 'main.Version={{ github.sha }}'" ./cmd/main.go
+        run: go build -o build/app -ldflags=`-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}'` ./cmd/main.go
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
