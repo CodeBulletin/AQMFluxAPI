@@ -45,3 +45,13 @@ jobs:
         with:
           name: build
           path: build
+
+      - name: Send Notification Success
+        if: success()
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Build - ${{ github.ref }}" -d "Build Success - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
+
+      - name: Send Notification Failure
+        if: failure()
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Build - ${{ github.ref }}" -d "Build Failed - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
