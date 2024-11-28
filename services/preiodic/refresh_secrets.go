@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/codebulletin/AQMFluxAPI/db"
-	"github.com/codebulletin/AQMFluxAPI/db/repo"
 	"github.com/codebulletin/AQMFluxAPI/logger"
+	"github.com/codebulletin/AQMFluxAPI/repo"
 	"github.com/codebulletin/AQMFluxAPI/utils"
 )
 

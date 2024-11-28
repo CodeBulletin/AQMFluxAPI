@@ -1,0 +1,45 @@
+name: Build Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  NOTIFICATION_WEBHOOK: ${{ secrets.NOTIFICATION_WEBHOOK }}
+  NOTIFICATION_AUTH: ${{ secrets.NOTIFICATION_AUTH }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # insatll nodejs and bun
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.23.2
+      - name: Install dependencies
+        run: go mod download
+      - name: Get latest release
+        run: |
+          curl -s https://api.github.com/repos/CodeBulletin/AQMFluxUI/releases > releases.json
+      - name: Parse latest release
+        run: |
+          jq -r 'map(select(.prerelease)) | .[0].assets[0].browser_download_url' releases.json > latest_release.txt
+      - name: Download latest release
+        run: |
+          curl -sL $(cat latest_release.txt) -o build.zip
+      - name: Unzip static files
+        run: unzip build.zip -d static
+      - name: Build
+        run: go build -o build/app -ldflags="-X 'main.Debug=false' -X 'main.Version={{ github.sha }}'" ./cmd/main.go
+      - name: Archive build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build

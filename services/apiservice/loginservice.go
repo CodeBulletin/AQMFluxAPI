@@ -6,7 +6,7 @@ import (
 
 	"github.com/codebulletin/AQMFluxAPI/config"
 	"github.com/codebulletin/AQMFluxAPI/db"
-	"github.com/codebulletin/AQMFluxAPI/db/repo"
+	"github.com/codebulletin/AQMFluxAPI/repo"
 	"github.com/codebulletin/AQMFluxAPI/types"
 	"github.com/codebulletin/AQMFluxAPI/utils"
 )

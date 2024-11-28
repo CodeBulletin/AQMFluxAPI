@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/codebulletin/AQMFluxAPI/db"
-	"github.com/codebulletin/AQMFluxAPI/db/repo"
 	"github.com/codebulletin/AQMFluxAPI/logger"
 	"github.com/codebulletin/AQMFluxAPI/mqtt"
+	"github.com/codebulletin/AQMFluxAPI/repo"
 )
 
 var fetch func()

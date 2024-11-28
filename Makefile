@@ -30,33 +30,25 @@ build: clean $(BINARY)
 
 $(BINARY): $(GO_FILES)
 	mkdir -p $(BUILD_DIR)
-	$(GO) build -o $(BINARY) $(SRC_DIR)/cmd/main.go
+	$(GO) build -o $(BINARY) -ldflags="-X 'main.Debug=true' -X 'main.Version=dev'" $(SRC_DIR)/cmd/main.go 
 
 # Run the application
 run: clean build
 	$(BINARY)
 
-# Format the code
-fmt:
-	$(GOFMT) -w $(SRC_DIR)
-
-# Run tests
-test:
-	$(GO) test ./...
-
 # Run migrations
 migrate:
-	$(GO) run $(MIGRATION_DIR)/main.go up
+	$(GO) run $(MIGRATION_DIR)/migrate.go up
 
 migrate-fix:
-	$(GO) run $(MIGRATION_DIR)/main.go $(version) fix 
+	$(GO) run $(MIGRATION_DIR)/migrate.go $(version) fix-up
 
 # Rollback migrations
 rollback:
-	$(GO) run $(MIGRATION_DIR)/main.go down
+	$(GO) run $(MIGRATION_DIR)/migrate.go down
 
 rollback-force:
-	$(GO) run $(MIGRATION_DIR)/main.go $(version) fixdown
+	$(GO) run $(MIGRATION_DIR)/migrate.go $(version) fix-down
 
 # Create a new migration
 migration:
