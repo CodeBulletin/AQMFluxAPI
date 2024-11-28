@@ -39,7 +39,7 @@ jobs:
       - name: debug
         run: echo "-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}' -s -w"
       - name: Build
-        run: go build -o build/app -ldflags=`-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}'` ./cmd/main.go
+        run: go build -o build/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}'" ./cmd/main.go
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
