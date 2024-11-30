@@ -156,6 +156,38 @@ func (q *Queries) GetDeviceSensors(ctx context.Context, deviceID int32) ([]GetDe
 	return items, nil
 }
 
+const getDevicesList = `-- name: GetDevicesList :many
+SELECT device_id, device_name FROM Device
+`
+
+type GetDevicesListRow struct {
+	DeviceID   int32  `json:"device_id"`
+	DeviceName string `json:"device_name"`
+}
+
+func (q *Queries) GetDevicesList(ctx context.Context) ([]GetDevicesListRow, error) {
+	rows, err := q.query(ctx, q.getDevicesListStmt, getDevicesList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetDevicesListRow{}
+	for rows.Next() {
+		var i GetDevicesListRow
+		if err := rows.Scan(&i.DeviceID, &i.DeviceName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateDevice = `-- name: UpdateDevice :exec
 UPDATE Device SET device_name = $2, location_id = $3, device_desc = $4 WHERE device_id = $1
 `

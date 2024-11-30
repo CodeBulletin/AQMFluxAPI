@@ -1,6 +1,9 @@
 -- name: GetSensors :many
 SELECT sensor_id, sensor_name, sensor_desc FROM Sensor;
 
+-- name: GetSensorsList :many
+SELECT sensor_id, sensor_name FROM Sensor;
+
 -- name: CreateSensors :exec
 INSERT INTO Sensor (sensor_id, sensor_name, sensor_desc) VALUES ($1, $2, $3);
 

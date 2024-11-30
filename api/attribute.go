@@ -23,6 +23,7 @@ func (a *AttributeAPI) Router() http.Handler {
 	router.HandleFunc("POST /", a.a.AddAttribute)
 	router.HandleFunc("PUT /", a.a.UpdateAttribute)
 	router.HandleFunc("GET /", a.a.GetAttributes)
+	router.HandleFunc("GET /all/", a.a.GetAttributeList)
 
 	return router
 }

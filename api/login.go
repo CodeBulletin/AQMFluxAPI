@@ -8,19 +8,19 @@ import (
 )
 
 type LoginAPI struct {
-	LoginAPI *apiservice.LoginService
+	l *apiservice.LoginService
 }
 
 func NewLoginAPI(db db.DB) *LoginAPI {
 	return &LoginAPI{
-		LoginAPI: apiservice.NewLoginService(db),
+		l: apiservice.NewLoginService(db),
 	}
 }
 
 func (l *LoginAPI) Router() http.Handler {
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /", l.LoginAPI.Login)
+	router.HandleFunc("POST /", l.l.Login)
 
 	return router
 }

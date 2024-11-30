@@ -26,3 +26,6 @@ UPDATE DeviceAddr SET IP_addr = $2, MAC_addr = $3, PORT = $4 WHERE device_id = $
 
 -- name: DeleteDeviceSensors :exec
 DELETE FROM SensorDevice WHERE device_id = $1;
+
+-- name: GetDevicesList :many
+SELECT device_id, device_name FROM Device;

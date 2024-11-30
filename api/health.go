@@ -7,19 +7,19 @@ import (
 )
 
 type HealthAPI struct {
-	healthService *apiservice.HealthService
+	h *apiservice.HealthService
 }
 
 func NewHealthAPI() *HealthAPI {
 	return &HealthAPI{
-		healthService: apiservice.NewHealthService(),
+		h: apiservice.NewHealthService(),
 	}
 }
 
 func (h *HealthAPI) Router() http.Handler {
 	router := http.NewServeMux()
 
-	router.HandleFunc("/", h.healthService.Check)
+	router.HandleFunc("/", h.h.Check)
 
 	return router
 }

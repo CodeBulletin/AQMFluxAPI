@@ -42,6 +42,14 @@ func (v *V1API) Router() http.Handler {
 	deviceRouter := NewDeviceAPI(v.db).Router()
 	router.Handle("/device/", middleware.Authentication(v.db)(http.StripPrefix("/device", deviceRouter)))
 
+	messageRouter := NewMessageAPI(v.db).Router()
+	router.Handle("/message/", middleware.Authentication(v.db)(http.StripPrefix("/message", messageRouter)))
+
+	operatorsRouter := NewOperatorAPI(v.db).Router()
+	router.Handle("/operator/", middleware.Authentication(v.db)(http.StripPrefix("/operator", operatorsRouter)))
+
+	alertRouter := NewAlertAPI(v.db).Router()
+	router.Handle("/alert/", middleware.Authentication(v.db)(http.StripPrefix("/alert", alertRouter)))
 
 	v1 := http.NewServeMux()
 	v1.Handle("/v1/", http.StripPrefix("/v1", middleware.Chain(middleware.AllowCors(), middleware.Preflight)(router)))

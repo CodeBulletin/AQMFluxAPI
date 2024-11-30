@@ -25,8 +25,11 @@ clean:
 		echo "Nothing to clean"; \
 	fi
 
+generate:
+	sqlc generate
+
 # Build the application
-build: clean $(BINARY)
+build: clean generate $(BINARY)
 
 $(BINARY): $(GO_FILES)
 	mkdir -p $(BUILD_DIR)

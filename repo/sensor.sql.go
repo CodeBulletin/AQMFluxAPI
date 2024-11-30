@@ -51,6 +51,38 @@ func (q *Queries) GetSensors(ctx context.Context) ([]Sensor, error) {
 	return items, nil
 }
 
+const getSensorsList = `-- name: GetSensorsList :many
+SELECT sensor_id, sensor_name FROM Sensor
+`
+
+type GetSensorsListRow struct {
+	SensorID   int32  `json:"sensor_id"`
+	SensorName string `json:"sensor_name"`
+}
+
+func (q *Queries) GetSensorsList(ctx context.Context) ([]GetSensorsListRow, error) {
+	rows, err := q.query(ctx, q.getSensorsListStmt, getSensorsList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetSensorsListRow{}
+	for rows.Next() {
+		var i GetSensorsListRow
+		if err := rows.Scan(&i.SensorID, &i.SensorName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateSensors = `-- name: UpdateSensors :exec
 UPDATE Sensor SET sensor_name = $1, sensor_desc = $2 WHERE sensor_id = $3
 `

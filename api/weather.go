@@ -8,19 +8,19 @@ import (
 )
 
 type WeatherAPI struct {
-	a *apiservice.WeatherService
+	w *apiservice.WeatherService
 }
 
 func NewWeatherAPI(db db.DB) *WeatherAPI {
 	return &WeatherAPI{
-		a: apiservice.NewWeatherService(db),
+		w: apiservice.NewWeatherService(db),
 	}
 }
 
 func (c *WeatherAPI) Router() http.Handler {
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /Location", c.a.GetOpenWeatherLocation)
+	router.HandleFunc("POST /Location", c.w.GetOpenWeatherLocation)
 
 	adminRouter := http.NewServeMux()
 	adminRouter.Handle("/", router)

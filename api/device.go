@@ -23,6 +23,7 @@ func (d *DeviceAPI) Router() http.Handler {
 	router.HandleFunc("POST /", d.a.CreateDevice)
 	router.HandleFunc("PUT /", d.a.UpdateDevice)
 	router.HandleFunc("GET /", d.a.GetDevice)
+	router.HandleFunc("GET /all/", d.a.GetDeviceList)
 
 	return router
 }

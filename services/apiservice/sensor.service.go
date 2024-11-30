@@ -122,3 +122,31 @@ func (a *SensorService) GetSensor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (a *SensorService) GetSensorList(w http.ResponseWriter, r *http.Request) {
+	query := repo.New(a.db)
+	defer query.Close()
+
+	sens, err := query.GetSensorsList(r.Context())
+
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("error getting sensors"))
+		return
+	}
+
+	sensors := make([]types.List, len(sens))
+
+	for i, sen := range sens {
+		sensors[i] = types.List{
+			Id:   sen.SensorID,
+			Name: sen.SensorName,
+		}
+	}
+
+	err = utils.WriteJSON(w, http.StatusOK, sensors)
+
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("error writing response"))
+		return
+	}
+}

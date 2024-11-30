@@ -152,3 +152,33 @@ func (h *DeviceService) GetDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *DeviceService) GetDeviceList (w http.ResponseWriter, r *http.Request) {
+	query := repo.New(h.db)
+	defer query.Close()
+
+	data, err := query.GetDevicesList(r.Context())
+
+	if err != nil {
+		h.logger.Error("Error getting device list: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("Error getting device list: %v", err))
+		return
+	}
+
+	var devices = make([]types.List, len(data))
+
+	for i, device := range data {
+		devices[i] = types.List{
+			Id: device.DeviceID,
+			Name: device.DeviceName,
+		}
+	}
+
+	err = utils.WriteJSON(w, http.StatusOK, devices)
+
+	if err != nil {
+		h.logger.Error("Error writing device list: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("Error writing device list: %v", err))
+		return
+	}
+}

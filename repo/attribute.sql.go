@@ -62,6 +62,38 @@ func (q *Queries) GetAllAttributes(ctx context.Context) ([]Attribute, error) {
 	return items, nil
 }
 
+const getAttributesList = `-- name: GetAttributesList :many
+SELECT attribute_id, attribute_name FROM Attribute
+`
+
+type GetAttributesListRow struct {
+	AttributeID   int32  `json:"attribute_id"`
+	AttributeName string `json:"attribute_name"`
+}
+
+func (q *Queries) GetAttributesList(ctx context.Context) ([]GetAttributesListRow, error) {
+	rows, err := q.query(ctx, q.getAttributesListStmt, getAttributesList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAttributesListRow{}
+	for rows.Next() {
+		var i GetAttributesListRow
+		if err := rows.Scan(&i.AttributeID, &i.AttributeName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateAttribute = `-- name: UpdateAttribute :exec
 UPDATE Attribute SET attribute_name = $1, attribute_desc = $2 WHERE attribute_id = $3
 `

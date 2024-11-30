@@ -42,8 +42,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createLocationStmt, err = db.PrepareContext(ctx, createLocation); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateLocation: %w", err)
 	}
+	if q.createMessageStmt, err = db.PrepareContext(ctx, createMessage); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateMessage: %w", err)
+	}
 	if q.createSensorsStmt, err = db.PrepareContext(ctx, createSensors); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateSensors: %w", err)
+	}
+	if q.createThresholdStmt, err = db.PrepareContext(ctx, createThreshold); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateThreshold: %w", err)
 	}
 	if q.deleteConfigByKeyStmt, err = db.PrepareContext(ctx, deleteConfigByKey); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteConfigByKey: %w", err)
@@ -51,17 +57,29 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteDeviceSensorsStmt, err = db.PrepareContext(ctx, deleteDeviceSensors); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteDeviceSensors: %w", err)
 	}
+	if q.deleteMessageStmt, err = db.PrepareContext(ctx, deleteMessage); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteMessage: %w", err)
+	}
+	if q.deleteThresholdStmt, err = db.PrepareContext(ctx, deleteThreshold); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteThreshold: %w", err)
+	}
 	if q.getAllAttributesStmt, err = db.PrepareContext(ctx, getAllAttributes); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAllAttributes: %w", err)
 	}
 	if q.getAllDeviceInformationStmt, err = db.PrepareContext(ctx, getAllDeviceInformation); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAllDeviceInformation: %w", err)
 	}
+	if q.getAttributesListStmt, err = db.PrepareContext(ctx, getAttributesList); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAttributesList: %w", err)
+	}
 	if q.getConfigByKeyStmt, err = db.PrepareContext(ctx, getConfigByKey); err != nil {
 		return nil, fmt.Errorf("error preparing query GetConfigByKey: %w", err)
 	}
 	if q.getDeviceSensorsStmt, err = db.PrepareContext(ctx, getDeviceSensors); err != nil {
 		return nil, fmt.Errorf("error preparing query GetDeviceSensors: %w", err)
+	}
+	if q.getDevicesListStmt, err = db.PrepareContext(ctx, getDevicesList); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDevicesList: %w", err)
 	}
 	if q.getExpiredSecretsStmt, err = db.PrepareContext(ctx, getExpiredSecrets); err != nil {
 		return nil, fmt.Errorf("error preparing query GetExpiredSecrets: %w", err)
@@ -78,11 +96,23 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getLocationsStmt, err = db.PrepareContext(ctx, getLocations); err != nil {
 		return nil, fmt.Errorf("error preparing query GetLocations: %w", err)
 	}
+	if q.getMessagesStmt, err = db.PrepareContext(ctx, getMessages); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMessages: %w", err)
+	}
+	if q.getMessageslistStmt, err = db.PrepareContext(ctx, getMessageslist); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMessageslist: %w", err)
+	}
+	if q.getOperatorsStmt, err = db.PrepareContext(ctx, getOperators); err != nil {
+		return nil, fmt.Errorf("error preparing query GetOperators: %w", err)
+	}
 	if q.getSecretByNameStmt, err = db.PrepareContext(ctx, getSecretByName); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSecretByName: %w", err)
 	}
 	if q.getSensorsStmt, err = db.PrepareContext(ctx, getSensors); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSensors: %w", err)
+	}
+	if q.getSensorsListStmt, err = db.PrepareContext(ctx, getSensorsList); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSensorsList: %w", err)
 	}
 	if q.insertMeasurementStmt, err = db.PrepareContext(ctx, insertMeasurement); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertMeasurement: %w", err)
@@ -105,11 +135,17 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.updateLocationStmt, err = db.PrepareContext(ctx, updateLocation); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateLocation: %w", err)
 	}
+	if q.updateMessageStmt, err = db.PrepareContext(ctx, updateMessage); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateMessage: %w", err)
+	}
 	if q.updateSecretStmt, err = db.PrepareContext(ctx, updateSecret); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateSecret: %w", err)
 	}
 	if q.updateSensorsStmt, err = db.PrepareContext(ctx, updateSensors); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateSensors: %w", err)
+	}
+	if q.updateThresholdStmt, err = db.PrepareContext(ctx, updateThreshold); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateThreshold: %w", err)
 	}
 	return &q, nil
 }
@@ -146,9 +182,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createLocationStmt: %w", cerr)
 		}
 	}
+	if q.createMessageStmt != nil {
+		if cerr := q.createMessageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createMessageStmt: %w", cerr)
+		}
+	}
 	if q.createSensorsStmt != nil {
 		if cerr := q.createSensorsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createSensorsStmt: %w", cerr)
+		}
+	}
+	if q.createThresholdStmt != nil {
+		if cerr := q.createThresholdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createThresholdStmt: %w", cerr)
 		}
 	}
 	if q.deleteConfigByKeyStmt != nil {
@@ -161,6 +207,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteDeviceSensorsStmt: %w", cerr)
 		}
 	}
+	if q.deleteMessageStmt != nil {
+		if cerr := q.deleteMessageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteMessageStmt: %w", cerr)
+		}
+	}
+	if q.deleteThresholdStmt != nil {
+		if cerr := q.deleteThresholdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteThresholdStmt: %w", cerr)
+		}
+	}
 	if q.getAllAttributesStmt != nil {
 		if cerr := q.getAllAttributesStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAllAttributesStmt: %w", cerr)
@@ -171,6 +227,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getAllDeviceInformationStmt: %w", cerr)
 		}
 	}
+	if q.getAttributesListStmt != nil {
+		if cerr := q.getAttributesListStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAttributesListStmt: %w", cerr)
+		}
+	}
 	if q.getConfigByKeyStmt != nil {
 		if cerr := q.getConfigByKeyStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getConfigByKeyStmt: %w", cerr)
@@ -179,6 +240,11 @@ func (q *Queries) Close() error {
 	if q.getDeviceSensorsStmt != nil {
 		if cerr := q.getDeviceSensorsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getDeviceSensorsStmt: %w", cerr)
+		}
+	}
+	if q.getDevicesListStmt != nil {
+		if cerr := q.getDevicesListStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDevicesListStmt: %w", cerr)
 		}
 	}
 	if q.getExpiredSecretsStmt != nil {
@@ -206,6 +272,21 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getLocationsStmt: %w", cerr)
 		}
 	}
+	if q.getMessagesStmt != nil {
+		if cerr := q.getMessagesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMessagesStmt: %w", cerr)
+		}
+	}
+	if q.getMessageslistStmt != nil {
+		if cerr := q.getMessageslistStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMessageslistStmt: %w", cerr)
+		}
+	}
+	if q.getOperatorsStmt != nil {
+		if cerr := q.getOperatorsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getOperatorsStmt: %w", cerr)
+		}
+	}
 	if q.getSecretByNameStmt != nil {
 		if cerr := q.getSecretByNameStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getSecretByNameStmt: %w", cerr)
@@ -214,6 +295,11 @@ func (q *Queries) Close() error {
 	if q.getSensorsStmt != nil {
 		if cerr := q.getSensorsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getSensorsStmt: %w", cerr)
+		}
+	}
+	if q.getSensorsListStmt != nil {
+		if cerr := q.getSensorsListStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSensorsListStmt: %w", cerr)
 		}
 	}
 	if q.insertMeasurementStmt != nil {
@@ -251,6 +337,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing updateLocationStmt: %w", cerr)
 		}
 	}
+	if q.updateMessageStmt != nil {
+		if cerr := q.updateMessageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateMessageStmt: %w", cerr)
+		}
+	}
 	if q.updateSecretStmt != nil {
 		if cerr := q.updateSecretStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateSecretStmt: %w", cerr)
@@ -259,6 +350,11 @@ func (q *Queries) Close() error {
 	if q.updateSensorsStmt != nil {
 		if cerr := q.updateSensorsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateSensorsStmt: %w", cerr)
+		}
+	}
+	if q.updateThresholdStmt != nil {
+		if cerr := q.updateThresholdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateThresholdStmt: %w", cerr)
 		}
 	}
 	return err
@@ -306,20 +402,30 @@ type Queries struct {
 	createDeviceStmt                    *sql.Stmt
 	createDeviceAddrStmt                *sql.Stmt
 	createLocationStmt                  *sql.Stmt
+	createMessageStmt                   *sql.Stmt
 	createSensorsStmt                   *sql.Stmt
+	createThresholdStmt                 *sql.Stmt
 	deleteConfigByKeyStmt               *sql.Stmt
 	deleteDeviceSensorsStmt             *sql.Stmt
+	deleteMessageStmt                   *sql.Stmt
+	deleteThresholdStmt                 *sql.Stmt
 	getAllAttributesStmt                *sql.Stmt
 	getAllDeviceInformationStmt         *sql.Stmt
+	getAttributesListStmt               *sql.Stmt
 	getConfigByKeyStmt                  *sql.Stmt
 	getDeviceSensorsStmt                *sql.Stmt
+	getDevicesListStmt                  *sql.Stmt
 	getExpiredSecretsStmt               *sql.Stmt
 	getHighestMeasurementOfLastHourStmt *sql.Stmt
 	getIntervalConfigStmt               *sql.Stmt
 	getLatestMeasurementStmt            *sql.Stmt
 	getLocationsStmt                    *sql.Stmt
+	getMessagesStmt                     *sql.Stmt
+	getMessageslistStmt                 *sql.Stmt
+	getOperatorsStmt                    *sql.Stmt
 	getSecretByNameStmt                 *sql.Stmt
 	getSensorsStmt                      *sql.Stmt
+	getSensorsListStmt                  *sql.Stmt
 	insertMeasurementStmt               *sql.Stmt
 	loadConfigDataStmt                  *sql.Stmt
 	setConfigBykeyStmt                  *sql.Stmt
@@ -327,8 +433,10 @@ type Queries struct {
 	updateDeviceStmt                    *sql.Stmt
 	updateDeviceAddrStmt                *sql.Stmt
 	updateLocationStmt                  *sql.Stmt
+	updateMessageStmt                   *sql.Stmt
 	updateSecretStmt                    *sql.Stmt
 	updateSensorsStmt                   *sql.Stmt
+	updateThresholdStmt                 *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -341,20 +449,30 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createDeviceStmt:                    q.createDeviceStmt,
 		createDeviceAddrStmt:                q.createDeviceAddrStmt,
 		createLocationStmt:                  q.createLocationStmt,
+		createMessageStmt:                   q.createMessageStmt,
 		createSensorsStmt:                   q.createSensorsStmt,
+		createThresholdStmt:                 q.createThresholdStmt,
 		deleteConfigByKeyStmt:               q.deleteConfigByKeyStmt,
 		deleteDeviceSensorsStmt:             q.deleteDeviceSensorsStmt,
+		deleteMessageStmt:                   q.deleteMessageStmt,
+		deleteThresholdStmt:                 q.deleteThresholdStmt,
 		getAllAttributesStmt:                q.getAllAttributesStmt,
 		getAllDeviceInformationStmt:         q.getAllDeviceInformationStmt,
+		getAttributesListStmt:               q.getAttributesListStmt,
 		getConfigByKeyStmt:                  q.getConfigByKeyStmt,
 		getDeviceSensorsStmt:                q.getDeviceSensorsStmt,
+		getDevicesListStmt:                  q.getDevicesListStmt,
 		getExpiredSecretsStmt:               q.getExpiredSecretsStmt,
 		getHighestMeasurementOfLastHourStmt: q.getHighestMeasurementOfLastHourStmt,
 		getIntervalConfigStmt:               q.getIntervalConfigStmt,
 		getLatestMeasurementStmt:            q.getLatestMeasurementStmt,
 		getLocationsStmt:                    q.getLocationsStmt,
+		getMessagesStmt:                     q.getMessagesStmt,
+		getMessageslistStmt:                 q.getMessageslistStmt,
+		getOperatorsStmt:                    q.getOperatorsStmt,
 		getSecretByNameStmt:                 q.getSecretByNameStmt,
 		getSensorsStmt:                      q.getSensorsStmt,
+		getSensorsListStmt:                  q.getSensorsListStmt,
 		insertMeasurementStmt:               q.insertMeasurementStmt,
 		loadConfigDataStmt:                  q.loadConfigDataStmt,
 		setConfigBykeyStmt:                  q.setConfigBykeyStmt,
@@ -362,7 +480,9 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		updateDeviceStmt:                    q.updateDeviceStmt,
 		updateDeviceAddrStmt:                q.updateDeviceAddrStmt,
 		updateLocationStmt:                  q.updateLocationStmt,
+		updateMessageStmt:                   q.updateMessageStmt,
 		updateSecretStmt:                    q.updateSecretStmt,
 		updateSensorsStmt:                   q.updateSensorsStmt,
+		updateThresholdStmt:                 q.updateThresholdStmt,
 	}
 }

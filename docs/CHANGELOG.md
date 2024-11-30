@@ -1,3 +1,4 @@
 ## Added
 
--- Automatic release based on tags
+-- Messages Service
+-- Started Working on alert service

@@ -125,3 +125,33 @@ func (a *AttributeService) GetAttributes(w http.ResponseWriter, r *http.Request)
 		return
 	}
 }
+
+func (a *AttributeService) GetAttributeList(w http.ResponseWriter, r *http.Request) {
+	query := repo.New(a.db)
+	defer query.Close()
+
+	data, err := query.GetAttributesList(r.Context())
+
+	if err != nil {
+		a.logger.Error("Error getting attribute list: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("Error getting attribute list: %v", err))
+		return
+	}
+
+	var attributes = make([]types.List, len(data))
+
+	for i, attr := range data {
+		attributes[i] = types.List{
+			Id: attr.AttributeID,
+			Name: attr.AttributeName,
+		}
+	}
+
+	err = utils.WriteJSON(w, http.StatusOK, attributes)
+
+	if err != nil {
+		a.logger.Error("Error writing attribute list: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("Error writing attribute list: %v", err))
+		return
+	}
+}
