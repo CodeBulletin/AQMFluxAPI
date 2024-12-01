@@ -13,32 +13,7 @@ env:
   NOTIFICATION_AUTH: ${{ secrets.NOTIFICATION_AUTH }}
 
 jobs:
-  prebuild:
-    runs-on: ubuntu-latest
-    outputs:
-      static-path: ${{ steps.unzip.outputs.static-path }}
-    steps:
-      - name: Get latest release
-        run: |
-          curl -s https://api.github.com/repos/CodeBulletin/AQMFluxUI/releases > releases.json
-
-      - name: Parse latest release
-        run: |
-          jq -r 'map(select(.prerelease)) | .[0].assets[0].browser_download_url' releases.json > latest_release.txt
-
-      - name: Download latest release
-        run: |
-          curl -sL $(cat latest_release.txt) -o build.zip
-
-      - name: Unzip static files
-        id: unzip
-        run: |
-          unzip -n build.zip -d static
-        outputs:
-          static-path: static
-
   build:
-    needs: prebuild
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,10 +30,22 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Build
+      - name: Get latest release
         run: |
-          cp -r ${{ needs.prebuild.outputs.static-path }} ./static
-          GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}'" ./cmd/main.go
+          curl -s https://api.github.com/repos/CodeBulletin/AQMFluxUI/releases > releases.json
+
+      - name: Parse latest release
+        run: |
+          jq -r 'map(select(.prerelease)) | .[0].assets[0].browser_download_url' releases.json > latest_release.txt
+      - name: Download latest release
+        run: |
+          curl -sL $(cat latest_release.txt) -o build.zip
+
+      - name: Unzip static files
+        run: unzip -n build.zip -d static
+
+      - name: Build
+        run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}'" ./cmd/main.go
 
       - name: Send Notification Success
         if: success()
