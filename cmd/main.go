@@ -71,7 +71,7 @@ func main() {
 	ntfy := ntfy.New()
 
 	mqtt_service := mqttservice.NewMqttService(database)
-	notificationservice := notificationservice.NewNotificationService(ntfy)
+	notificationservice := notificationservice.NewNotificationService(ntfy, database)
 
 	DBListner := db.NewPostgresListner(logger)
 	defer DBListner.Close()

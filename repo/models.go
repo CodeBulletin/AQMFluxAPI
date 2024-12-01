@@ -13,6 +13,7 @@ type Attribute struct {
 	AttributeID   int32  `json:"attribute_id"`
 	AttributeName string `json:"attribute_name"`
 	AttributeDesc string `json:"attribute_desc"`
+	AttributeUnit string `json:"attribute_unit"`
 }
 
 type Config struct {

@@ -109,6 +109,48 @@ func (q *Queries) DeleteThreshold(ctx context.Context, id int32) (Threshold, err
 	return i, err
 }
 
+const getThresholds = `-- name: GetThresholds :many
+SELECT id, sensor_id, device_id, attribute_id, message_id, value1, value2, frequency, created_at, updated_at, last_triggered, operator_id, triggername, triggerenabled FROM Threshold
+`
+
+func (q *Queries) GetThresholds(ctx context.Context) ([]Threshold, error) {
+	rows, err := q.query(ctx, q.getThresholdsStmt, getThresholds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Threshold{}
+	for rows.Next() {
+		var i Threshold
+		if err := rows.Scan(
+			&i.ID,
+			&i.SensorID,
+			&i.DeviceID,
+			&i.AttributeID,
+			&i.MessageID,
+			&i.Value1,
+			&i.Value2,
+			&i.Frequency,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.LastTriggered,
+			&i.OperatorID,
+			&i.Triggername,
+			&i.Triggerenabled,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateThreshold = `-- name: UpdateThreshold :one
 UPDATE Threshold SET
     sensor_id    = $1,

@@ -21,22 +21,28 @@ func (q *Queries) AttributeIdFromName(ctx context.Context, attributeName string)
 }
 
 const createAttribute = `-- name: CreateAttribute :exec
-INSERT INTO Attribute (attribute_id, attribute_name, attribute_desc) VALUES ($1, $2, $3)
+INSERT INTO Attribute (attribute_id, attribute_name, attribute_desc, attribute_unit) VALUES ($1, $2, $3, $4)
 `
 
 type CreateAttributeParams struct {
 	AttributeID   int32  `json:"attribute_id"`
 	AttributeName string `json:"attribute_name"`
 	AttributeDesc string `json:"attribute_desc"`
+	AttributeUnit string `json:"attribute_unit"`
 }
 
 func (q *Queries) CreateAttribute(ctx context.Context, arg CreateAttributeParams) error {
-	_, err := q.exec(ctx, q.createAttributeStmt, createAttribute, arg.AttributeID, arg.AttributeName, arg.AttributeDesc)
+	_, err := q.exec(ctx, q.createAttributeStmt, createAttribute,
+		arg.AttributeID,
+		arg.AttributeName,
+		arg.AttributeDesc,
+		arg.AttributeUnit,
+	)
 	return err
 }
 
 const getAllAttributes = `-- name: GetAllAttributes :many
-SELECT attribute_id, attribute_name, attribute_desc FROM Attribute
+SELECT attribute_id, attribute_name, attribute_desc, attribute_unit FROM Attribute
 `
 
 func (q *Queries) GetAllAttributes(ctx context.Context) ([]Attribute, error) {
@@ -48,7 +54,12 @@ func (q *Queries) GetAllAttributes(ctx context.Context) ([]Attribute, error) {
 	items := []Attribute{}
 	for rows.Next() {
 		var i Attribute
-		if err := rows.Scan(&i.AttributeID, &i.AttributeName, &i.AttributeDesc); err != nil {
+		if err := rows.Scan(
+			&i.AttributeID,
+			&i.AttributeName,
+			&i.AttributeDesc,
+			&i.AttributeUnit,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -95,16 +106,22 @@ func (q *Queries) GetAttributesList(ctx context.Context) ([]GetAttributesListRow
 }
 
 const updateAttribute = `-- name: UpdateAttribute :exec
-UPDATE Attribute SET attribute_name = $1, attribute_desc = $2 WHERE attribute_id = $3
+UPDATE Attribute SET attribute_name = $1, attribute_desc = $2, attribute_unit = $3 WHERE attribute_id = $4
 `
 
 type UpdateAttributeParams struct {
 	AttributeName string `json:"attribute_name"`
 	AttributeDesc string `json:"attribute_desc"`
+	AttributeUnit string `json:"attribute_unit"`
 	AttributeID   int32  `json:"attribute_id"`
 }
 
 func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) error {
-	_, err := q.exec(ctx, q.updateAttributeStmt, updateAttribute, arg.AttributeName, arg.AttributeDesc, arg.AttributeID)
+	_, err := q.exec(ctx, q.updateAttributeStmt, updateAttribute,
+		arg.AttributeName,
+		arg.AttributeDesc,
+		arg.AttributeUnit,
+		arg.AttributeID,
+	)
 	return err
 }

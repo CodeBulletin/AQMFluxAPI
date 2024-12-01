@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -57,6 +59,10 @@ func ParseQueryParams(r *http.Request, inParams ...types.Param) (map[string]stri
 	return params, nil
 }
 
+func ParseJSON(in string, data interface{}) error {
+	return json.Unmarshal([]byte(in), data)
+}
+
 func HTTPGet(url string, queryParams map[string]string, timeout time.Duration, logger logger.Logger) (*http.Response, error) {
 	client := &http.Client{
 		Timeout: timeout,
@@ -78,6 +84,26 @@ func HTTPGet(url string, queryParams map[string]string, timeout time.Duration, l
 	resp, err := client.Do(req)
 	logger.Request("%v GET %s %s", resp.StatusCode, fmt.Sprintf("%s://%s%s", req.URL.Scheme, req.URL.Host, req.URL.Path), time.Since(start))
 	return resp, err
+}
+
+func HTTPPost(url string, body []byte, headers map[string]string, ctx context.Context, logger logger.Logger) error {
+	client := &http.Client{}
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("error creating request: %v", err)
+	}
+
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	req = req.WithContext(ctx)
+
+	start := time.Now()
+	resp, err := client.Do(req)
+	logger.Request("%v POST %s %s", resp.StatusCode, url, time.Since(start))
+	return err
 }
 
 func SetCookie(w http.ResponseWriter, name string, value string, expires time.Duration, httpOnly bool) {

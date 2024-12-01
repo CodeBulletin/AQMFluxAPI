@@ -42,6 +42,7 @@ func (a *AttributeService) AddAttribute(w http.ResponseWriter, r *http.Request) 
 		AttributeName: attr.Name,
 		AttributeID:   attr.Id,
 		AttributeDesc: attr.Desc,
+		AttributeUnit: attr.Unit,
 	})
 
 	if err != nil {
@@ -79,6 +80,7 @@ func (a *AttributeService) UpdateAttribute(w http.ResponseWriter, r *http.Reques
 		AttributeName: attr.Name,
 		AttributeID:   attr.Id,
 		AttributeDesc: attr.Desc,
+		AttributeUnit: attr.Unit,
 	})
 
 	if err != nil {
@@ -115,6 +117,7 @@ func (a *AttributeService) GetAttributes(w http.ResponseWriter, r *http.Request)
 			Id:   attr.AttributeID,
 			Name: attr.AttributeName,
 			Desc: attr.AttributeDesc,
+			Unit: attr.AttributeUnit,
 		}
 	}
 

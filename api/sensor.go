@@ -22,7 +22,8 @@ func (s *SensorsAPI) Router() http.Handler {
 
 	router.HandleFunc("POST /", s.s.AddSensor)
 	router.HandleFunc("PUT /", s.s.UpdateSensor)
-	router.HandleFunc("GET /", s.s.GetSensorList)
+	router.HandleFunc("GET /all/", s.s.GetSensorList)
+	router.HandleFunc("GET /", s.s.GetSensor)
 
 	return router
 }

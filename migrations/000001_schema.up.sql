@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS Sensor (
 CREATE TABLE IF NOT EXISTS Attribute (
    attribute_id   INT PRIMARY KEY,
    attribute_name TEXT NOT NULL,
-   attribute_desc TEXT NOT NULL
+   attribute_desc TEXT NOT NULL,
+   attribute_unit VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Measurements (
@@ -59,6 +60,8 @@ CREATE TABLE IF NOT EXISTS Measurements (
     CONSTRAINT fk_attribute_id FOREIGN KEY (attribute_id) REFERENCES attribute(attribute_id),
     PRIMARY KEY (mtime, sensor_id, device_id, attribute_id)
 );
+
+-- Insert Into Measurements (mtime, sensor_id, device_id, attribute_id, mvalue) Values ('2021-01-01 00:00:00', 0, 0, 1, 1.0);
 
 CREATE TABLE IF NOT EXISTS Operator (
     id        SERIAL PRIMARY KEY,   

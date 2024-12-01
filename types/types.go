@@ -48,6 +48,7 @@ type Attribute struct {
 	Name  string `json:"name"`
 	Id    int32  `json:"id"`
 	Desc  string `json:"description"`
+	Unit  string `json:"unit"`
 }
 
 type Location struct {
@@ -101,7 +102,6 @@ type Messages struct {
 }
 
 type Alert struct {
-	// Id   int32  `json:"id"`
 	Name string `json:"name"`
 	Enabled bool `json:"enabled"`
 	DeviceId int32 `json:"device_id"`
@@ -112,4 +112,33 @@ type Alert struct {
 	Frequency int32 `json:"frequency"`
 	Value1 float64 `json:"value1"`
 	Value2 sql.NullFloat64 `json:"value2"`
+}
+
+type Threshold struct {
+	Id int32 `json:"id"`
+	Name string `json:"name"`
+	Enabled bool `json:"enabled"`
+	DeviceId int32 `json:"device_id"`
+	SensorId int32 `json:"sensor_id"`
+	AttributeId int32 `json:"attribute_id"`
+	OperatorId int32 `json:"operator_id"`
+	MessageId int32 `json:"message_id"`
+	Frequency int32 `json:"frequency"`
+	Value1 float64 `json:"value1"`
+	Value2 sql.NullFloat64 `json:"value2"`
+}
+
+type AlertNotificationIncoming struct {
+	ID int32 `json:"ID"`
+	V0 float64 `json:"0"`
+	V1 float64 `json:"1"`
+	V2 float64 `json:"2"`
+	AttrName string `json:"AttrName"`
+	OP string `json:"OP"`
+	AlertName string `json:"AlertName"`
+	SenName string `json:"SenName"`
+	DevName string `json:"DevName"`
+	Time string `json:"Time"`
+	Location string `json:"Loc"`
+	Unit string `json:"Unit"`
 }

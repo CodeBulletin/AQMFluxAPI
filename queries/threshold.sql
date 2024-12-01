@@ -40,3 +40,6 @@ WHERE id = $11 RETURNING *;
 -- name: DeleteThreshold :one
 DELETE FROM Threshold
 WHERE id = $1 RETURNING *;
+
+-- name: GetThresholds :many
+SELECT * FROM Threshold;

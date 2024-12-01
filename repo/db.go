@@ -114,6 +114,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getSensorsListStmt, err = db.PrepareContext(ctx, getSensorsList); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSensorsList: %w", err)
 	}
+	if q.getThresholdsStmt, err = db.PrepareContext(ctx, getThresholds); err != nil {
+		return nil, fmt.Errorf("error preparing query GetThresholds: %w", err)
+	}
 	if q.insertMeasurementStmt, err = db.PrepareContext(ctx, insertMeasurement); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertMeasurement: %w", err)
 	}
@@ -302,6 +305,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getSensorsListStmt: %w", cerr)
 		}
 	}
+	if q.getThresholdsStmt != nil {
+		if cerr := q.getThresholdsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getThresholdsStmt: %w", cerr)
+		}
+	}
 	if q.insertMeasurementStmt != nil {
 		if cerr := q.insertMeasurementStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertMeasurementStmt: %w", cerr)
@@ -426,6 +434,7 @@ type Queries struct {
 	getSecretByNameStmt                 *sql.Stmt
 	getSensorsStmt                      *sql.Stmt
 	getSensorsListStmt                  *sql.Stmt
+	getThresholdsStmt                   *sql.Stmt
 	insertMeasurementStmt               *sql.Stmt
 	loadConfigDataStmt                  *sql.Stmt
 	setConfigBykeyStmt                  *sql.Stmt
@@ -473,6 +482,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getSecretByNameStmt:                 q.getSecretByNameStmt,
 		getSensorsStmt:                      q.getSensorsStmt,
 		getSensorsListStmt:                  q.getSensorsListStmt,
+		getThresholdsStmt:                   q.getThresholdsStmt,
 		insertMeasurementStmt:               q.insertMeasurementStmt,
 		loadConfigDataStmt:                  q.loadConfigDataStmt,
 		setConfigBykeyStmt:                  q.setConfigBykeyStmt,
