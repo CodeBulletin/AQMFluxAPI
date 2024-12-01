@@ -80,9 +80,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build-amd64/app
-            build-arm64/app
-            build-arm/app
+            build/build-amd64/app
+            build/build-arm64/app
+            build/build-arm/app
           token: ${{ env.GITHUB_PTA_TOKEN }}
           release_name: Release ${{ github.ref }}
           body_path: ${{ github.workspace }}/docs/CHANGELOG.md
