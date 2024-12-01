@@ -71,7 +71,10 @@ jobs:
       - name: attach build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build
+          name:
+            - build-amd64
+            - build-arm64
+            - build-arm
           path: build
 
       - name: Release
