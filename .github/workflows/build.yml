@@ -13,9 +13,12 @@ env:
   NOTIFICATION_AUTH: ${{ secrets.NOTIFICATION_AUTH }}
 
 jobs:
-  prepare:
+  build:
     runs-on: ubuntu-latest
-    # insatll nodejs and bun
+    needs: prepare
+    strategy:
+      matrix:
+        goarch: [amd64, arm64, arm]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,22 +40,6 @@ jobs:
       - name: Unzip static files
         run: unzip -n build.zip -d static
 
-      - name: Send Notification Success
-        if: success()
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Prepare - ${{ github.ref }}" -d "Prepare Success - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
-      - name: Send Notification Failure
-        if: failure()
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Prepare - ${{ github.ref }}" -d "Prepare Failed - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
-
-  build:
-    runs-on: ubuntu-latest
-    needs: prepare
-    strategy:
-      matrix:
-        goarch: [amd64, arm64, arm]
-    steps:
       - name: Build
         run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}'" ./cmd/main.go
 
@@ -66,15 +53,8 @@ jobs:
         run: |
           curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Build(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Build Failed For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
 
-  archive:
-    runs-on: ubuntu-latest
-    needs: build
-    strategy:
-      matrix:
-        goarch: [amd64, arm64, arm]
-    steps:
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.goarch }}
-          path: build/${{ matrix.goarch }}/app
+          path: build/${{ matrix.goarch }}
