@@ -15,48 +15,75 @@ jobs:
     runs-on: ubuntu-latest
     # insatll nodejs and bun
     steps:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goarch: [amd64, arm64, arm]
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.23.2
+
       - name: Install dependencies
         run: go mod download
+
       - name: Get latest release
         run: |
           curl -s https://api.github.com/repos/CodeBulletin/AQMFluxUI/releases > releases.json
+
       - name: Parse latest release
         run: |
           jq -r 'map(select(.prerelease)) | .[0].assets[0].browser_download_url' releases.json > latest_release.txt
       - name: Download latest release
         run: |
           curl -sL $(cat latest_release.txt) -o build.zip
+
       - name: Unzip static files
         run: unzip -n build.zip -d static
+
       - name: Build
-        run: go build -o build/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_REF##*/}' -s -w" ./cmd/main.go
+        run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}' -s -w" ./cmd/main.go
+
+      - name: Send Notification Success
+        if: success()
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Build(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Build Succeeded For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
+
+      - name: Send Notification Failure
+        if: failure()
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Build(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Build Failed For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
+
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
+          name: build-${{ matrix.goarch }}
+          path: build/${{ matrix.goarch }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: attach build artifacts
+        uses: actions/download-artifact@v4
+        with:
           name: build
           path: build
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/app
+          files: build/*
           token: ${{ env.GITHUB_PTA_TOKEN }}
           release_name: Release ${{ github.ref }}
           body_path: ${{ github.workspace }}/docs/CHANGELOG.md
           prerelease: true
           make_latest: true
-
-      - name: Send Notification Success
-        if: success()
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Release - ${{ github.ref }}" -d "Release Success - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
-
-      - name: Send Notification Failure
-        if: failure()
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Release - ${{ github.ref }}" -d "Release Failed - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
