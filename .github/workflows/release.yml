@@ -71,11 +71,8 @@ jobs:
       - name: attach build artifacts
         uses: actions/download-artifact@v4
         with:
-          name:
-            - build-amd64
-            - build-arm64
-            - build-arm
           path: build
+          pattern: build-*
 
       - name: Release
         uses: softprops/action-gh-release@v2
