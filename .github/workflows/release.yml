@@ -43,7 +43,7 @@ jobs:
         run: unzip -n build.zip -d static
 
       - name: Build
-        run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}' -s -w" ./cmd/main.go
+        run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app${{ matrix.goarch }} -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}' -s -w" ./cmd/main.go
 
       - name: Send Notification Success
         if: success()
@@ -80,9 +80,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/build-amd64/app
-            build/build-arm64/app
-            build/build-arm/app
+            build/build-amd64/appamd64
+            build/build-arm64/apparm64
+            build/build-arm/apparm
           token: ${{ env.GITHUB_PTA_TOKEN }}
           release_name: Release ${{ github.ref }}
           body_path: ${{ github.workspace }}/docs/CHANGELOG.md
