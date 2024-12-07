@@ -22,6 +22,14 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
+func WriteText(w http.ResponseWriter, status int, v string) error {
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(status)
+
+	_, err := w.Write([]byte(v))
+	return err
+}
+
 func WriteError(w http.ResponseWriter, status int, err error) {
 	WriteJSON(w, status, map[string]string{"error": err.Error()})
 }

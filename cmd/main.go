@@ -16,6 +16,7 @@ import (
 	"github.com/codebulletin/AQMFluxAPI/services/mqttservice"
 	"github.com/codebulletin/AQMFluxAPI/services/notificationservice"
 	"github.com/codebulletin/AQMFluxAPI/services/preiodic"
+	"github.com/codebulletin/AQMFluxAPI/utils"
 )
 
 
@@ -97,6 +98,8 @@ func main() {
 	router := http.NewServeMux()
 	router.Handle("/api/", http.StripPrefix("/api", api.Router()))
 
+	logger.Info("Serving HTML %v", config.GetAPIConfig().HostHTML())
+
 	if Debug == "false" && config.GetAPIConfig().HostHTML() {
 		logger.Info("Serving Static Files")
 		subFs, err := fs.Sub(root.GetStatic(), "static")
@@ -104,9 +107,12 @@ func main() {
 			logger.Fatal("Error getting sub filesystem: %v", err)
 		}
 		router.Handle("/", http.FileServer(http.FS(subFs)))
+		router.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
+			utils.WriteText(w, http.StatusOK, "window.RUNTIME_CONFIG={API_URL:'/api/v1'};")
+		})
 	}
 
 	server := server.NewServer(config.GetAPIConfig().URL(), database, logger, router)
+	defer server.Close()
 	server.Start()
-	server.Close()
 }
