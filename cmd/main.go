@@ -106,10 +106,10 @@ func main() {
 		if err != nil {
 			logger.Fatal("Error getting sub filesystem: %v", err)
 		}
-		router.Handle("/", http.FileServer(http.FS(subFs)))
-		router.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("GET /config.js", func(w http.ResponseWriter, r *http.Request) {
 			utils.WriteText(w, http.StatusOK, "window.RUNTIME_CONFIG={API_URL:'/api/v1'};")
 		})
+		router.Handle("/", http.FileServer(http.FS(subFs)))
 	}
 
 	server := server.NewServer(config.GetAPIConfig().URL(), database, logger, router)
