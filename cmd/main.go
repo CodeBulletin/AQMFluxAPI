@@ -10,6 +10,7 @@ import (
 	"github.com/codebulletin/AQMFluxAPI/config"
 	"github.com/codebulletin/AQMFluxAPI/db"
 	"github.com/codebulletin/AQMFluxAPI/logger"
+	"github.com/codebulletin/AQMFluxAPI/middleware"
 	"github.com/codebulletin/AQMFluxAPI/mqtt"
 	"github.com/codebulletin/AQMFluxAPI/ntfy"
 	"github.com/codebulletin/AQMFluxAPI/server"
@@ -106,10 +107,14 @@ func main() {
 		if err != nil {
 			logger.Fatal("Error getting sub filesystem: %v", err)
 		}
-		router.HandleFunc("GET /config.js", func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("GET /web/config.js", func(w http.ResponseWriter, r *http.Request) {
 			utils.WriteJS(w, http.StatusOK, "window.RUNTIME_CONFIG={API_URL:\"/api/v1\"};")
 		})
-		router.Handle("/", http.FileServer(http.FS(subFs)))
+		router.Handle("/", middleware.ServeStatic(http.FS(subFs))(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				utils.WriteError(w, http.StatusNotFound, nil)
+			}),
+		))
 	}
 
 	server := server.NewServer(config.GetAPIConfig().URL(), database, logger, router)
