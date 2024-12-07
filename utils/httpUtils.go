@@ -30,6 +30,14 @@ func WriteText(w http.ResponseWriter, status int, v string) error {
 	return err
 }
 
+func WriteJS(w http.ResponseWriter, status int, v string) error {
+	w.Header().Set("Content-Type", "application/javascript")
+	w.WriteHeader(status)
+
+	_, err := w.Write([]byte(v))
+	return err
+}
+
 func WriteError(w http.ResponseWriter, status int, err error) {
 	WriteJSON(w, status, map[string]string{"error": err.Error()})
 }
