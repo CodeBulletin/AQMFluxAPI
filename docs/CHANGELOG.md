@@ -1,3 +1,3 @@
 ## Added
 
-- Added Cross Architecture Compilation For Build Step
+- Added Automatic Image Build job

@@ -97,7 +97,7 @@ func main() {
 	router := http.NewServeMux()
 	router.Handle("/api/", http.StripPrefix("/api", api.Router()))
 
-	if Debug == "false" {
+	if Debug == "false" && config.GetAPIConfig().HostHTML() {
 		logger.Info("Serving Static Files")
 		subFs, err := fs.Sub(root.GetStatic(), "static")
 		if err != nil {
@@ -106,7 +106,7 @@ func main() {
 		router.Handle("/", http.FileServer(http.FS(subFs)))
 	}
 
-	server := server.NewServer("localhost:8080", database, logger, router)
+	server := server.NewServer(config.GetAPIConfig().URL(), database, logger, router)
 	server.Start()
 	server.Close()
 }

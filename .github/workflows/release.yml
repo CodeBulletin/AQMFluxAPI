@@ -1,90 +1,127 @@
-name: Release Application
+# name: Release Application
+
+# on:
+#   push:
+#     tags:
+#       - v*.*.*
+
+# env:
+#   GITHUB_PTA_TOKEN: ${{ secrets.GITHUBPTA }}
+#   NOTIFICATION_WEBHOOK: ${{ secrets.NOTIFICATION_WEBHOOK }}
+#   NOTIFICATION_AUTH: ${{ secrets.NOTIFICATION_AUTH }}
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         goarch: [amd64, arm64, arm]
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Setup Go
+#         uses: actions/setup-go@v2
+#         with:
+#           go-version: 1.23.2
+
+#       - name: Install dependencies
+#         run: go mod download
+
+#       - name: Get latest release
+#         run: |
+#           curl -s https://api.github.com/repos/CodeBulletin/AQMFluxUI/releases > releases.json
+
+#       - name: Parse latest release
+#         run: |
+#           jq -r 'map(select(.prerelease)) | .[0].assets[0].browser_download_url' releases.json > latest_release.txt
+#       - name: Download latest release
+#         run: |
+#           curl -sL $(cat latest_release.txt) -o build.zip
+
+#       - name: Unzip static files
+#         run: unzip -n build.zip -d static
+
+#       - name: Build
+#         run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app${{ matrix.goarch }} -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}' -s -w" ./cmd/main.go
+
+#       - name: Send Notification Success
+#         if: success()
+#         run: |
+#           curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Release(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Release Succeeded For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
+
+#       - name: Send Notification Failure
+#         if: failure()
+#         run: |
+#           curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Release(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Release Failed For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
+
+#       - name: Archive build
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: build-${{ matrix.goarch }}
+#           path: build/${{ matrix.goarch }}
+
+#   build-and-push:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Setup QEMU
+#         uses: docker/setup-qemu-action@v3
+
+#       - name: Setup Docker
+#         uses: docker/setup-buildx-action@v3
+
+#       - name: Login to DockerHub
+#         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+#       - name: Build and push image
+#         run: |
+#           docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t codebulletin/aqmflux:${{ github.ref }} -t codebulletin/aqmflux:latest -t codebulletin/aqmflux:${{ github.sha }} --push .
+
+#   release:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: attach build artifacts
+#         uses: actions/download-artifact@v4
+#         with:
+#           path: build
+
+#       - name: Debug
+#         run: ls -la build
+
+#       - name: Release
+#         uses: softprops/action-gh-release@v2
+#         with:
+#           files: |
+#             build/build-amd64/appamd64
+#             build/build-arm64/apparm64
+#             build/build-arm/apparm
+#           token: ${{ env.GITHUB_PTA_TOKEN }}
+#           release_name: Release ${{ github.ref }}
+#           body_path: ${{ github.workspace }}/docs/CHANGELOG.md
+#           prerelease: true
+#           make_latest: true
+
+name: Test Release
 
 on:
   push:
-    tags:
-      - v*.*.*
+    branches:
+      - main
 
 env:
-  GITHUB_PTA_TOKEN: ${{ secrets.GITHUBPTA }}
-  NOTIFICATION_WEBHOOK: ${{ secrets.NOTIFICATION_WEBHOOK }}
-  NOTIFICATION_AUTH: ${{ secrets.NOTIFICATION_AUTH }}
+  tag: v1.0.0
+  platform: linux/amd64
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goarch: [amd64, arm64, arm]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.23.2
-
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Get latest release
-        run: |
-          curl -s https://api.github.com/repos/CodeBulletin/AQMFluxUI/releases > releases.json
-
-      - name: Parse latest release
-        run: |
-          jq -r 'map(select(.prerelease)) | .[0].assets[0].browser_download_url' releases.json > latest_release.txt
-      - name: Download latest release
-        run: |
-          curl -sL $(cat latest_release.txt) -o build.zip
-
-      - name: Unzip static files
-        run: unzip -n build.zip -d static
-
-      - name: Build
-        run: GOARCH=${{ matrix.goarch }} go build -o build/${{ matrix.goarch }}/app${{ matrix.goarch }} -ldflags="-X 'main.Debug=false' -X 'main.Version=${GITHUB_SHA:7}' -s -w" ./cmd/main.go
-
-      - name: Send Notification Success
-        if: success()
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Release(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Release Succeeded For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
-
-      - name: Send Notification Failure
-        if: failure()
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ env.NOTIFICATION_AUTH }}" -H "Title:${{ github.event.repository.name }} - Release(${{ matrix.goarch }}) - ${{ github.ref }}" -d "Release Failed For ${{ matrix.goarch }} - ${{ github.ref }}" ${{ env.NOTIFICATION_WEBHOOK }}
-
-      - name: Archive build
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ matrix.goarch }}
-          path: build/${{ matrix.goarch }}
-
-  release:
-    needs: build
+  test1:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: attach build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: build
-
-      - name: Debug
-        run: ls -la build
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            build/build-amd64/appamd64
-            build/build-arm64/apparm64
-            build/build-arm/apparm
-          token: ${{ env.GITHUB_PTA_TOKEN }}
-          release_name: Release ${{ github.ref }}
-          body_path: ${{ github.workspace }}/docs/CHANGELOG.md
-          prerelease: true
-          make_latest: true
+      - name: Print tag
+        run: echo ${{ env.tag }}
