@@ -107,7 +107,7 @@ func main() {
 		if err != nil {
 			logger.Fatal("Error getting sub filesystem: %v", err)
 		}
-		router.HandleFunc("GET /web/config.js", func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("GET /config.js", func(w http.ResponseWriter, r *http.Request) {
 			utils.WriteJS(w, http.StatusOK, "window.RUNTIME_CONFIG={API_URL:\"/api/v1\"};")
 		})
 		router.Handle("/", middleware.ServeStatic(http.FS(subFs))(
